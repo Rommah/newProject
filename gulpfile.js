@@ -123,7 +123,7 @@ function spriteSvg(){
 }
 
 function images() {
-	return src('app/images/src/**/*') // Берём все изображения из папки источника
+	return src(['app/images/src/**/*', '!app/images/src/**/*.svg']) // Берём все изображения из папки источника
 	.pipe(newer('app/images/dest/')) // Проверяем, было ли изменено (сжато) изображение ранее
 	.pipe(imagemin()) // Сжимаем и оптимизируем изображеня
 	.pipe(dest('app/images/dest/')) // Выгружаем оптимизированные изображения в папку назначения
