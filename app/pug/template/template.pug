@@ -1,0 +1,29 @@
+include mixins.pug
+include variables.pug
+doctype html
+html(lang='ru')
+	head
+		meta(charset = 'UTF-8')
+		meta(name = 'viewport' content = 'initial-scale=1, width=device-width')
+
+		//- вставить название нужного шрифта ниже!!
+		link(rel='preload' href='font/Opensans.woff2' as='font') 
+		//- для загрузки шрифта до стилевого файла
+		link(rel='preload' href='font/Opensans-bold.woff2' as='font')
+		link(rel='stylesheet' href='app/css/app.min.css')
+		block title
+		
+	body
+
+		block header
+			include parts/Header.pug
+
+
+		block main
+
+		
+		block footer
+			include parts/Footer.pug
+
+		include parts/svg/sprite.symbol.svg
+		script(src='app/js/app.min.js')
