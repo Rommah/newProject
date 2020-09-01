@@ -26,6 +26,7 @@
     "jquery": "^3.5.1"
   },
   "dependencies": {
+    "gulp-htmlmin": "^5.0.1",
     "pug": "^3.0.0"
   }
 }

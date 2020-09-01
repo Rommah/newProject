@@ -32,13 +32,16 @@ const newer = require('gulp-newer');
 // Подключаем модуль del
 const del = require('del');
 
-// Сам добавил: pug:
+//  добавил: pug:
 const pug = require('gulp-pug');
 
-// Сам добавил, pug-bem:
+// ещё добавил, pug-bem:
 const pugbem = require('gulp-pugbem');
 
-//  svg-cпрайты:
+//так же добавил сжатие HTML после билда:
+const htmlmin = require('gulp-htmlmin');
+
+// добавил svg-cпрайты:
 const svgSprite = require('gulp-svg-sprite');
 let config = {
     shape: {
@@ -82,6 +85,14 @@ function scripts() {
 	.pipe(browserSync.stream()) // Триггерим Browsersync для обновления страницы
 }
 // добавил {allowEmpty: true}, чтобы запускался таск галп с пустым проектом без ошибок
+
+// функция сжатия скриптов после переноса в dist (добавил после первого билда):
+function buildScriptsOptimise() {
+	return src('dist/js/**/*.js', {allowEmpty: true} )
+	.pipe(uglify() )
+	.pipe(dest('dist/js/') )
+}
+
 function styles() {
 	// return src('app/' + preprocessor + '/*.' + preprocessor + '') // Выбираем источник: "app/sass/main.sass" или "app/less/main.less"
 	return src( ['app/' + preprocessor + '/font.' + preprocessor + '', 'app/' + preprocessor + '/global.' + preprocessor + '', 'app/' + preprocessor + '/*.' + preprocessor + ''],  {allowEmpty: true}) 
@@ -92,6 +103,12 @@ function styles() {
 //	.pipe(cleancss( { level: { 1: { specialComments: 0 } }/* , format: 'beautify' */ } )) // Минифицируем стили
 	.pipe(dest('app/css/')) // Выгрузим результат в папку "app/css/"
 	.pipe(browserSync.stream()) // Сделаем инъекцию в браузер
+}
+
+function buildStylesOpt(){
+	return src('dist/css/**/*.css')
+	.pipe(cleancss( { level: { 1: { specialComments: 0 } }/* , format: 'beautify' */ } ))
+	.pipe(dest('dist/css/') )
 }
 
 // function styles() {
@@ -140,8 +157,19 @@ function buildcopy() {
 		'app/js/**/*.min.js',
 		'app/images/dest/**/*',
 		'app/**/*.html',
+
+		'app/font/**/*', // добавил перенос шрифтов (не было в исходном)
+		'app/video/**/*' // И папку с видео! (тоже не было)
+
 		], { base: 'app' }) // Параметр "base" сохраняет структуру проекта при копировании
 	.pipe(dest('dist')) // Выгружаем в папку с финальной сборкой
+}
+
+// Добавил сжатие хтмл в готовом билде:
+function buildHtmlOptimisation(){
+	return src('dist/**/*.html')
+	.pipe(htmlmin({ collapseWhitespace: true }) )
+    .pipe(dest('dist'));
 }
  
 function cleandist() {
@@ -179,9 +207,20 @@ exports.browsersync = browsersync;
  
 // Экспортируем функцию scripts() в таск scripts
 exports.scripts = scripts;
+
+// Создал таск по сжатию финальных скриптов:
+exports.buildScriptsOptimise = buildScriptsOptimise;
  
+
 // Экспортируем функцию styles() в таск styles
 exports.styles = styles;
+
+// Так же добавил сжатие скриптов (после переноса в билд):
+exports.buildStylesOpt = buildStylesOpt;
+
+// Так же добавил сжатие html! (после переноса в билд):
+exports.buildHtmlOptimisation = buildHtmlOptimisation;
+
 
 // Экспорт функции images() в таск images
 exports.images = images;
@@ -196,7 +235,8 @@ exports.cleanimg = cleanimg;
 exports.pugy = pugy;
 
 // Создаём новый таск "build", который последовательно выполняет нужные операции
-exports.build = series(cleandist, styles, scripts, images, buildcopy);
+exports.build = series(cleandist, styles, scripts, images, buildcopy, 
+	buildScriptsOptimise, buildStylesOpt, buildHtmlOptimisation); // последние три функции добавил для сжатия документов уже посел переноса в Dist!
 
 // Экспортируем дефолтный таск с нужным набором функций
 exports.default = parallel(styles, scripts, browsersync, startwatch);
