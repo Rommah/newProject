@@ -1,7 +1,7 @@
-.font(@fontName; @path: ""; @weight: normal;   @style: normal) {
-  font-family: '@{fontName}';
+.font(@fontFamily; @weight: normal; @fontName: @fontFamily@weight; @style: normal; @path: "") {
+  font-family: '@{fontFamily}';
   font-display: swap;
-  src: local('@{fontName}'),
+  src: local('@{fontFamily}'),
     url('../font/@{path}@{fontName}.woff2') format('woff2'),
     url('../font/@{path}@{fontName}.woff') format('woff'),
     url('../font/@{path}@{fontName}.eot') format("eot"),

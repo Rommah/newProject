@@ -72,11 +72,12 @@ function browsersync() {
 
 function scripts() {
 	return src([ // Берём файлы из источников
-		'node_modules/jquery/dist/jquery.min.js', // Пример подключения библиотеки
-		'app/js/app.js' // Пользовательские скрипты, использующие библиотеку, должны быть подключены в конце
+		// 'node_modules/jquery/dist/jquery.min.js', // Пример подключения библиотеки
+		'app/js/**/*.js', // Пользовательские скрипты, использующие библиотеку, должны быть подключены в конце
+		'!app/js/app.min.js'
 		], {allowEmpty: true})
 	.pipe(concat('app.min.js')) // Конкатенируем в один файл
-	.pipe(uglify()) // Сжимаем JavaScript
+	// .pipe(uglify()) // Сжимаем JavaScript
 	.pipe(dest('app/js/')) // Выгружаем готовый файл в папку назначения
 	.pipe(browserSync.stream()) // Триггерим Browsersync для обновления страницы
 }
@@ -157,16 +158,20 @@ function startwatch() {
  
 	// Мониторим файлы HTML на изменения
 	// watch('app/**/*.html').on('change', browserSync.reload);
-	watch('app/**/*.html').on('change', browserSync.reload);
+	watch(['app/**/*.html', 'app/font/**/*']).on('change', browserSync.reload);
+
+	// плюс добавил слежение за шрифтами
+	// watch('app/font/', browserSync.reload);
  
 	// Мониторим папку-источник изображений и выполняем images(), если есть изменения
 	watch(['app/images/src/**/*', '!app/images/src/**/*.svg'],  images);
  
- 	// Сам добавил Pug
+ 	// добавил Pug
  	watch(['app/pug/**/*.pug', 'app/pug/template/parts/svg/*.svg'], pugy);
 
  	// и добавил запуск spriteSvg для создания спрайта при изменении svg файлов
  	watch('app/images/src/*.svg', spriteSvg);
+
 }
 
 // Экспортируем функцию browsersync() как таск browsersync. Значение после знака = это имеющаяся функция.
